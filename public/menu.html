@@ -4,325 +4,714 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Control de Luz con shiftr.io</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
+          :root {
+      --primary-color: #3498db;
+      --secondary-color: #2ecc71;
+      --background-color: #f5f7fa;
+      --text-color: #34495e;
+      --sidebar-color: #2c3e50;
+      --hover-color: #3498db;
+    }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      overflow-x: hidden; /* Evita el desplazamiento horizontal */
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+      overflow-x: hidden;
+    }
+
+    .page-container {
+      display: flex;
+      min-height: 100vh;
     }
 
     .sidebar {
-      width: 150px;
-      height: 100vh;
-      background-color: #333;
+      width: 220px;
+      background-color: var(--sidebar-color);
       color: #fff;
-      padding: 1rem;
-      position: fixed;
-      top: 0;
-      left: 0; /* Asegúrate de que la barra lateral siempre esté visible */
-      z-index: 1000;
-    }
-
-    h1 {
-      text-align: center; /* Centra el texto horizontalmente */
-    }
-
-    .sidebar.active {
-      left: 0; /* Muestra la barra lateral cuando está activa */
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     }
 
     .sidebar h2 {
       margin-top: 0;
-      font-size: 1.5rem;
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      color: var(--primary-color);
     }
 
     .sidebar a {
       display: block;
       color: #fff;
       text-decoration: none;
-      padding: 0.5rem 0;
-      font-size: 1.2rem;
+      padding: 0.8rem 1rem;
+      font-size: 1.1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      margin-bottom: 0.5rem;
     }
 
     .sidebar a:hover {
-      background-color: #575757;
+      background-color: var(--hover-color);
+      transform: translateX(5px);
+    }
+    .sidebar select {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 1rem;
+      border-radius: 5px;
+      background-color: var(--sidebar-color);
+      color: #fff;
+      border: 1px solid var(--primary-color);
+    }
+
+    .sidebar select option {
+      background-color: var(--sidebar-color);
     }
 
     .content {
-      padding: 1rem;
-      margin-left: 250px; /* Ajusta esto para alinear correctamente con la barra lateral visible */
+      flex-grow: 1;
+      padding: 2rem;
+      transition: all 0.3s ease;
     }
 
-    .content.shifted {
-      margin-left: 300px; /* Mueve el contenido cuando la barra lateral está activa */
-    }
-
-    .menu-btn {
-      font-size: 1.5rem;
-      cursor: pointer;
-      background-color: #333;
-      color: #fff;
-      border: none;
-      padding: 10px;
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 1001; /* Asegura que el botón esté por encima de otros elementos */
-    }
-
-    button {
-      margin: 5px;
-      padding: 10px;
-      font-size: 1rem;
-      cursor: pointer;
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      font-size: 2.5rem;
+      margin-bottom: 2rem;
     }
 
     .rooms-container {
-      display: flex;
-      flex-wrap: wrap; /* Permite que los elementos se envuelvan en lugar de desbordar */
-      gap: 20px; /* Espacio entre los elementos */
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
     }
 
     .room {
-      border: 2px solid #ccc;
-      padding: 20px;
-      width: 300px; /* Ancho de cada habitación */
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: center; /* Centra los elementos dentro de la habitación */
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .room:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.15);
     }
 
     .room h2 {
       text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
     }
 
     .room-btn {
       display: block;
       width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #333;
-      background-color: #f7f7f7;
+      padding: 0.8rem;
+      margin: 0.8rem 0;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--primary-color);
+      color: #fff;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
 
     .room-btn:hover {
-      background-color: #e7e7e7;
+      background-color: #2980b9;
     }
 
     .slider-container {
       display: flex;
       flex-direction: column;
       align-items: center;
+      margin-top: 1.5rem;
     }
     
     .slider {
       width: 100%;
+      -webkit-appearance: none;
+      height: 10px;
+      border-radius: 5px;
+      background: #d3d3d3;
+      outline: none;
+      opacity: 0.7;
+      transition: opacity .2s;
+    }
+
+    .slider:hover {
+      opacity: 1;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--secondary-color);
+      cursor: pointer;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--secondary-color);
+      cursor: pointer;
     }
 
     .estado-luz {
-        width: 15px;
-        height: 15px;
-        border-radius: 50%;
-        background-color: red; /* Inicia en rojo (apagado) */
-        margin: 10px auto; /* Centra el círculo */
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: #e74c3c;
+      margin: 1rem auto;
+      transition: all 0.3s ease;
+    }
+    
+    #estado {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 768px) {
+      .page-container {
+        flex-direction: column;
       }
 
+      .sidebar {
+        width: 100%;
+        padding: 1rem;
+      }
+
+      .content {
+        padding: 1rem;
+      }
+
+      .rooms-container {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 500px;
+      border-radius: 10px;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    #addMenuBtn, #addLightBtn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #addMenuBtn:hover, #addLightBtn:hover {
+      background-color: #2980b9;
+    }
+    #addLightBtn {
+      display: block;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: white;
+      font-size: 24px;
+      border: none;
+      cursor: pointer;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    #addLightBtn:hover {
+      background-color: #2980b9;
+      transform: scale(1.1);
+    }
+
+    .modal-content select,
+    .modal-content input,
+    .modal-content button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    .modal-content button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .modal-content button:hover {
+      background-color: #2980b9;
+    }
+    @media (max-width: 768px) {
+      #addLightBtn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+        bottom: 10px;
+        right: 10px;
+      }
+    }
+    .delete-btn {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.8em;
+  margin-top: 10px;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+}
   </style>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
-  <!-- Barra lateral -->
-  <div class="sidebar" id="sidebar">
-    <h2>Menú</h2>
-    <a href="menu.html">Control de Luz</a>
-    <a href="iframe.html">Dashboard</a>
-    <a href="ia.html">IA</a>
-    <a href="index.html">Salir</a>
+  <div class="page-container">
+    <div class="sidebar"> 
+      <h2>Menú</h2>
+      <div id="menuItems">
+        <a href="menu.html">Control de Luz</a>
+        <a href="iframe.html">Dashboard</a>
+        <a href="ia.html">IA</a>
+        <a href="index.html">Salir</a>
+      </div>
+      <select id="userInterfaces" aria-label="Interfaces de luz del usuario">
+        <option value="">Todas las interfaz</option>
+      </select>
+    </div>
+
+    <div class="content">
+      <h1>Control de Luz</h1>
+
+      <div class="rooms-container" id="roomsContainer">
+        <!-- Las habitaciones existentes se mantendrán aquí -->
+      </div>
+
+      <p id="estado">Estado: Desconectado</p>
+    </div>
   </div>
 
-  <!-- Contenido principal -->
-  <div class="content" id="content">
-    <h1>Control de Luz</h1>
+  <button id="addLightBtn" aria-label="Agregar Luz">+</button>
 
-    <!-- Botones para controlar la luz -->
-    <div class="rooms-container">
-      <div class="room">
-        <h2>Habitación 1</h2>
-        <button class="room-btn" id="apagarBtn">Encender Luz</button>
-        <button class="room-btn" id="encenderBtn">Apagar Luz</button>
-        <div id="estadoLuzHabitacion1" class="estado-luz"></div>
-      </div>
-
-      <div class="room">
-        <h2>Habitación 2</h2>
-        <button class="room-btn" id="encenderAzulBtn">Encender LED Azul</button>
-        <button class="room-btn" id="apagarAzulBtn">Apagar LED Azul</button>
-        <div id="estadoLuzHabitacion2" class="estado-luz"></div>
-      </div>
-
-      <div class="room">
-        <h2>Habitación 3</h2>
-        <button class="room-btn" id="encenderRojoBtn">Encender LED Rojo</button>
-        <button class="room-btn" id="apagarRojoBtn">Apagar LED Rojo</button>
-        <div id="estadoLuzHabitacion3" class="estado-luz"></div>
-      </div>
+  <!-- Modal para agregar luz -->
+  <div id="addLightModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Agregar Nueva Luz</h2>
+      <select id="lightType">
+        <option value="simple">Luz Simple (On/Off)</option>
+        <option value="control">Luz con Control PWM</option>
+      </select>
+      <input type="text" id="lightName" placeholder="Nombre de la luz">
+      <select id="lightTopic">
+        <option value="casa/luz">casa/luz</option>
+        <option value="casa/ledazul">casa/ledazul</option>
+        <option value="casa/ledrojo">casa/ledrojo</option>
+        <option value="casa/ledrojo/pwm">casa/ledrojo/pwm</option>
+      </select>
+      <button id="saveNewLight">Guardar</button>
     </div>
+  </div>
 
-    <!-- Control de brillo del LED rojo -->
-    <div class="room">
-      <h2>Control de LED Rojo - Brillo PWM</h2>
-      <div class="slider-container">
-        <input type="range" min="0" max="1023" value="0" class="slider" id="pwmSlider">
-        <p>Brillo: <span id="pwmValue">0</span></p>
-      </div>
-      <div id="estadoLuzLedRojo" class="estado-luz"></div>
-    </div>
+  <script>
+    // Configuración MQTT
+    const mqttServer = 'wss://crazyjester833.cloud.shiftr.io:443';
+    const mqttOptions = {
+      username: 'crazyjester833',
+      password: 'MOX70ExUuSBpjdQl'
+    };
+    let userId = null;
 
+    // Conectar al broker MQTT
+    const client = mqtt.connect(mqttServer, mqttOptions);
 
+    // Elementos del DOM
+    const estado = document.getElementById('estado');
+    const roomsContainer = document.getElementById('roomsContainer');
+    const addLightBtn = document.getElementById('addLightBtn');
+    const addLightModal = document.getElementById('addLightModal');
+    const saveNewLight = document.getElementById('saveNewLight');
+    const userInterfaces = document.getElementById('userInterfaces');
 
-    <!-- Estado de la conexión -->
-    <p id="estado">Estado: Desconectado</p>
+    // Eventos de conexión
+    client.on('connect', () => {
+      console.log('Conectado a shiftr.io');
+      estado.textContent = 'Estado: Conectado';
+    });
 
-    <script>
-      // Configuración MQTT
-      const mqttServer = 'wss://crazyjester833.cloud.shiftr.io:443'; // Servidor MQTT (WebSocket)
-      const mqttOptions = {
-        username: 'crazyjester833',
-        password: 'MOX70ExUuSBpjdQl'
-      };
+    client.on('error', (error) => {
+      console.error('Error de conexión:', error);
+      estado.textContent = 'Estado: Error de conexión';
+    });
 
-      // Conectar al broker MQTT
-      const client = mqtt.connect(mqttServer, mqttOptions);
+    async function checkAuthentication() {
+  try {
+    const response = await fetch('/api/check-auth', {
+      credentials: 'include'
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.authenticated) {
+      console.log('User is authenticated. User ID:', data.userId);
+      userId = data.userId;
+      return userId;
+    } else {
+      console.log('User is not authenticated');
+      window.location.href = '/login.html';
+      return null;
+    }
+  } catch (error) {
+    console.error('Error checking authentication:', error);
+    alert('Error al verificar la autenticación. Por favor, inicia sesión nuevamente.');
+    window.location.href = '/login.html';
+    return null;
+  }
+}
 
-      // Elementos del DOM
-      const estado = document.getElementById('estado');
-      const encenderBtn = document.getElementById('encenderBtn');
-      const apagarBtn = document.getElementById('apagarBtn');
-      const encenderAzulBtn = document.getElementById('encenderAzulBtn');
-      const apagarAzulBtn = document.getElementById('apagarAzulBtn');
-      const encenderRojoBtn = document.getElementById('encenderRojoBtn');
-      const apagarRojoBtn = document.getElementById('apagarRojoBtn');
-      const pwmSlider = document.getElementById('pwmSlider');
-      const pwmValue = document.getElementById('pwmValue');
-      const estadoLuzHabitacion1 = document.getElementById('estadoLuzHabitacion1');
-      const estadoLuzHabitacion2 = document.getElementById('estadoLuzHabitacion2');
-      const estadoLuzHabitacion3 = document.getElementById('estadoLuzHabitacion3');
-      const estadoLuzLedRojo = document.getElementById('estadoLuzLedRojo');
-
-
-      // Eventos de conexión
-      client.on('connect', () => {
-        console.log('Conectado a shiftr.io');
-        estado.textContent = 'Estado: Conectado';
+    // Función para publicar un mensaje en MQTT
+    function enviarMensaje(topic, mensaje) {
+      client.publish(topic, mensaje, (err) => {
+        if (err) {
+          console.error('Error al enviar mensaje:', err);
+        } else {
+          console.log(`Mensaje enviado: ${mensaje} en ${topic}`);
+        }
       });
+    }
 
-      client.on('error', (error) => {
-        console.error('Error de conexión:', error);
-        estado.textContent = 'Estado: Error de conexión';
-      });
+    // Funciones para cambiar el color del círculo
+    function encenderLuz(elemento) {
+      elemento.style.backgroundColor = '#2ecc71';
+      elemento.style.boxShadow = '0 0 10px #2ecc71';
+    }
 
-      // Función para publicar un mensaje en MQTT
-      function enviarMensaje(topic, mensaje) {
-        client.publish(topic, mensaje, (err) => {
-          if (err) {
-            console.error('Error al enviar mensaje:', err);
-          } else {
-            console.log(`Mensaje enviado: ${mensaje} en ${topic}`);
-          }
+    function apagarLuz(elemento) {
+      elemento.style.backgroundColor = '#e74c3c';
+      elemento.style.boxShadow = 'none';
+    }
+
+    // Función para abrir modal
+    function openModal(modal) {
+      modal.style.display = "block";
+    }
+
+    // Función para cerrar modal
+    function closeModal(modal) {
+      modal.style.display = "none";
+    }
+
+    // Event listener para abrir modal
+    addLightBtn.onclick = () => openModal(addLightModal);
+
+    // Event listener para cerrar modal
+    document.querySelector('.close').onclick = () => closeModal(addLightModal);
+
+    // Función para cargar las interfaces del usuario
+    async function loadUserInterfaces() {
+      try {
+        const response = await fetch('/api/user-interfaces', {
+          credentials: 'include'
         });
+        if (!response.ok) {
+          throw new Error('Error al cargar las interfaces del usuario');
+        }
+        const interfaces = await response.json();
+        userInterfaces.innerHTML = '<option value="">Todas las interfaz</option>';
+        interfaces.forEach(interface => {
+          const option = document.createElement('option');
+          option.value = interface.id;
+          option.textContent = interface.nombre;
+          userInterfaces.appendChild(option);
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar las interfaces del usuario');
       }
+    }
 
-      // Funciones para cambiar el color del círculo
-      function encenderLuz() {
-        estadoLuz.style.backgroundColor = 'green'; // Cambia a verde
+    // Función para cargar todas las interfaces
+    async function loadAllInterfaces() {
+      try {
+        const response = await fetch('/api/user-interfaces', {
+          credentials: 'include'
+        });
+        if (!response.ok) {
+          throw new Error(`Error al cargar las interfaces del usuario: ${response.status} ${response.statusText}`);
+        }
+        const interfaces = await response.json();
+        console.log('Interfaces cargadas:', interfaces);
+
+        if (interfaces.length === 0) {
+          roomsContainer.innerHTML = '<p>No hay interfaces disponibles.</p>';
+          return;
+        }
+
+        // Limpiar el contenedor de habitaciones
+        roomsContainer.innerHTML = '';
+
+        // Crear elementos para cada interfaz
+        interfaces.forEach(interfaceDetails => {
+          console.log('Procesando interfaz:', interfaceDetails);
+          const newRoom = document.createElement('div');
+          newRoom.className = 'room';
+          newRoom.dataset.id = interfaceDetails.id;
+
+          // Manejar casos donde lucesid o tipo puedan estar ausentes
+          const lucesid = interfaceDetails.lucesid || 'default/topic';
+          const tipo = interfaceDetails.tipo || 'desconocido';
+
+          newRoom.innerHTML = `
+            <h2>${interfaceDetails.nombre}</h2>
+            ${tipo === 'simple' ? `
+              <button class="room-btn" onclick="enviarMensaje('${lucesid}', 'on')">Encender</button>
+              <button class="room-btn" onclick="enviarMensaje('${lucesid}', 'off')">Apagar</button>
+            ` : tipo === 'control' ? `
+              <div class="slider-container">
+                <input type="range" min="0" max="1023" value="0" class="slider" oninput="enviarMensaje('${lucesid}', this.value)">
+                <p>Brillo: <span>0</span></p>
+              </div>
+            ` : `
+              <p>Tipo de interfaz no reconocido o faltante: ${tipo}</p>
+            `}
+            <div class="estado-luz"></div>
+            <button class="delete-btn" onclick="deleteInterface(${interfaceDetails.id})">Eliminar</button>
+          `;
+          roomsContainer.appendChild(newRoom);
+        });
+
+        // Actualizar el select de interfaces
+        updateInterfaceSelect(interfaces);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al cargar las interfaces del usuario: ' + error.message);
       }
+    }
 
-      function apagarLuz() {
-        estadoLuz.style.backgroundColor = 'red'; // Cambia a rojo
-      }
+    function updateInterfaceSelect(interfaces) {
+      userInterfaces.innerHTML = '<option value="">Todas las interfaz</option>';
+      interfaces.forEach(interfaceDetails => {
+        const option = document.createElement('option');
+        option.value = interfaceDetails.id;
+        option.textContent = interfaceDetails.nombre;
+        userInterfaces.appendChild(option);
+      });
+    }
 
-              function encenderLuzHabitacion1() {
-          estadoLuzHabitacion1.style.backgroundColor = 'green'; // Cambia a verde
-        }
-
-        function apagarLuzHabitacion1() {
-          estadoLuzHabitacion1.style.backgroundColor = 'red'; // Cambia a rojo
-        }
-
-        function encenderLuzHabitacion2() {
-          estadoLuzHabitacion2.style.backgroundColor = 'green'; // Cambia a verde
-        }
-
-        function apagarLuzHabitacion2() {
-          estadoLuzHabitacion2.style.backgroundColor = 'red'; // Cambia a rojo
-        }
-
-        function encenderLuzHabitacion3() {
-          estadoLuzHabitacion3.style.backgroundColor = 'green'; // Cambia a verde
-        }
-
-        function apagarLuzHabitacion3() {
-          estadoLuzHabitacion3.style.backgroundColor = 'red'; // Cambia a rojo
-        }
-
-        function encenderLedRojo() {
-          estadoLuzLedRojo.style.backgroundColor = 'green'; // Cambia a verde
-        }
-
-        function apagarLedRojo() {
-          estadoLuzLedRojo.style.backgroundColor = 'red'; // Cambia a rojo
-        }
-        function actualizarEstadoPWM(value) {
-          if (value > 0) {
-            encenderLedRojo(); // Cambia a verde si el valor del PWM es mayor a 0
-          } else {
-            apagarLedRojo(); // Cambia a rojo si el valor del PWM es 0
+    // Función para eliminar una interfaz
+    async function deleteInterface(id) {
+      if (confirm('¿Estás seguro de que quieres eliminar esta interfaz?')) {
+        try {
+          const response = await fetch(`/api/user-interfaces/${id}`, {
+            method: 'DELETE',
+            credentials: 'include'
+          });
+          
+          if (!response.ok) {
+            let errorMessage = 'Error al eliminar la interfaz';
+            const contentType = response.headers.get("content-type");
+            if (contentType && contentType.indexOf("application/json") !== -1) {
+              const errorData = await response.json();
+              errorMessage = errorData.error || errorMessage;
+            } else {
+              errorMessage = await response.text();
+            }
+            throw new Error(errorMessage);
           }
+
+          // Eliminar la interfaz de la UI
+          const interfaceElement = document.querySelector(`.room[data-id="${id}"]`);
+          if (interfaceElement) {
+            interfaceElement.remove();
+          }
+          
+          // Recargar todas las interfaces
+          await loadAllInterfaces();
+          
+          alert('Interfaz eliminada con éxito');
+        } catch (error) {
+          console.error('Error:', error);
+          alert(error.message);
         }
+      }
+    }
 
+    userInterfaces.addEventListener('change', async (event) => {
+      const selectedId = event.target.value;
+      if (selectedId) {
+        try {
+          const response = await fetch(`/api/user-interfaces/${selectedId}`, {
+            credentials: 'include'
+          });
+          if (!response.ok) {
+            throw new Error('Error al cargar los detalles de la interfaz');
+          }
+          const interfaceDetails = await response.json();
+          
+          // Limpiar el contenedor de habitaciones
+          roomsContainer.innerHTML = '';
 
-      // Acciones de los botones
-      encenderBtn.addEventListener('click', () => {
-        enviarMensaje('casa/luz', 'on');
-        apagarLuzHabitacion1();
-        encenderLuz();
-      });
+          // Crear el elemento de la luz seleccionada
+          const newRoom = document.createElement('div');
+          newRoom.className = 'room';
+          newRoom.dataset.id = interfaceDetails.id;
+          newRoom.innerHTML = `
+            <h2>${interfaceDetails.nombre}</h2>
+            ${interfaceDetails.tipo === 'simple' ? `
+              <button class="room-btn" onclick="enviarMensaje('${interfaceDetails.lucesid}', 'on')">Encender</button>
+              <button class="room-btn" onclick="enviarMensaje('${interfaceDetails.lucesid}', 'off')">Apagar</button>
+            ` : interfaceDetails.tipo === 'control' ? `
+              <div class="slider-container">
+                <input type="range" min="0" max="1023" value="0" class="slider" oninput="enviarMensaje('${interfaceDetails.lucesid}', this.value)">
+                <p>Brillo: <span>0</span></p>
+              </div>
+            ` : `
+              <p>Tipo de interfaz no reconocido: ${interfaceDetails.tipo}</p>
+            `}
+            <div class="estado-luz"></div>
+            <button class="delete-btn" onclick="deleteInterface(${interfaceDetails.id})">Eliminar</button>
+          `;
+          roomsContainer.appendChild(newRoom);
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Error al cargar los detalles de la interfaz');
+        }
+      } else {
+        // Si no se selecciona ninguna interfaz, mostrar todas las interfaces
+        loadAllInterfaces();
+      }
+    });
 
-      apagarBtn.addEventListener('click', () => {
-        enviarMensaje('casa/luz', 'off');
-        encenderLuzHabitacion1();
-        apagarLuz();
-      });
+    // Llamar a loadAllInterfaces cuando se guarda una nueva luz
+    saveNewLight.onclick = async () => {
+      const type = document.getElementById('lightType').value;
+      const name = document.getElementById('lightName').value;
+      const topic = document.getElementById('lightTopic').value;
+      if (name && topic) {
+        const newLight = {
+          nombre: name,
+          lucesid: topic,
+          tipo: type,
+          id_usuario: userId
+        };
 
-      encenderAzulBtn.addEventListener('click', () => {
-        encenderLuzHabitacion2();
-        enviarMensaje('casa/ledazul', 'on');
-      });
+        try {
+          const response = await fetch('/api/lights', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(newLight),
+          });
 
-      apagarAzulBtn.addEventListener('click', () => {
-        apagarLuzHabitacion2();
-        enviarMensaje('casa/ledazul', 'off');
-      });
+          if (!response.ok) {
+            throw new Error('Error al guardar la luz en la base de datos');
+          }
 
-      encenderRojoBtn.addEventListener('click', () => {
-        encenderLuzHabitacion3();
-        enviarMensaje('casa/ledrojo', 'on');
-      });
+          const result = await response.json();
+          console.log('Luz guardada en la base de datos:', result);
 
-      apagarRojoBtn.addEventListener('click', () => {
-        apagarLuzHabitacion3();
-        enviarMensaje('casa/ledrojo', 'off');
-      });
+          // Cerrar el modal
+          closeModal(addLightModal);
 
-      pwmSlider.addEventListener('input', () => {
-        const value = pwmSlider.value;
-        pwmValue.textContent = value;
-        enviarMensaje('casa/ledrojo/pwm', value);
-        actualizarEstadoPWM(value);
-      });
-    </script>
-  </div>
+          // Recargar todas las interfaces para mostrar la nueva luz
+          loadAllInterfaces();
+
+          // Limpiar los campos del formulario
+          document.getElementById('lightName').value = '';
+          document.getElementById('lightTopic').value = '';
+        } catch (error) {
+          console.error('Error:', error);
+          alert('Hubo un error al guardar la luz. Por favor, intenta de nuevo.');
+        }
+      }
+    };
+
+    // Inicialización
+    document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const userId = await checkAuthentication();
+    if (userId) {
+      await loadAllInterfaces();
+      await loadUserInterfaces();
+    }
+  } catch (error) {
+    console.error('Error during initialization:', error);
+  }
+});
+
+    window.addEventListener('error', function(event) {
+      console.error('Error no manejado:', event.error);
+      alert('Ha ocurrido un error inesperado. Por favor, recarga la página e intenta de nuevo.');
+    });
+
+</script>
 </body>
 </html>
